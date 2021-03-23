@@ -1,38 +1,44 @@
-import platform as p
-import subprocess as sub
 import time
 import multiprocessing
+import subprocess
+import sys
+  
 
 time1 = time.perf_counter()
 
-def checkping(host):
-    systemOs = '-n' if p.system().lower() == 'windows' else '-c'
-    pinging = ['ping', systemOs, '1', host]
-    status = ''
-    time.sleep(1)
+def check(host):
+	ip = host
 
-    if sub.call(pinging) == 0:
-        status = 'UP'
-    else:
-        status = 'DOWN'
+	p = subprocess.Popen('ping '+ip,stdout=subprocess.PIPE)
 
-    output = '\nHost {} is {}'.format(host, status)
+	p.wait()
+	if p.poll():
+		print ("Host " + ip + " is DOWN")
+	else:
+		print ("Host " + ip+" is UP")
 
-    print(output)
+def main():
+    hosts = ['192.168.1.1','192.168.1.2','192.168.1.3','8.8.8.8','8.8.4.4']
+    proses = []
+    
+    for i in hosts:
+        P = multiprocessing.Process(target=check, args=(i, ))
+        P.start()
+        proses.append(P)
 
-hosts = ['192.168.1.1','192.168.1.2','192.168.1.3','8.8.8.8','8.8.4.4']
-hosts2 = []
+    for process in proses:
+        process.join()
+    
+    time2 = time.perf_counter()
+    
+    print('')
 
-for i in hosts:
-    P = multiprocessing.Process(target=checkping, args=[i])
-    P.start()
-    hosts2.append(P)
+    print('Selesai dalam waktu {} detik'.format(time2-time1,2))
+        
+    
+if __name__ == "__main__":
+    main()
+    
+    
 
-for j in hosts2:
-    j.join()
 
-time2 = time.perf_counter()
-
-print('')
-
-print('Selesai dalam waktu {} detik'.format(time2-time1,2))
