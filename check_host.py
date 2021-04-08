@@ -16,3 +16,4 @@ if p.poll():
     print ("Host " + ip + " is DOWN")
 else:
     print ("Host " + ip+" is UP")
+    
